@@ -1,36 +1,53 @@
-local Entity = class("cecs_entity")
+local BASEDIR = (...):match("(.-)[^%.]+$")
+local class = require(BASEDIR .. "class")
 
-function Entity:initialize()
-	self.alive = true
+local CEntity = class("cecs_entity")
+
+function CEntity:init()
+	self.components = {}
 end
 
-function Entity:isAlive()
-	return self.alive
-end
-
-function Entity:kill()
-	self.alive = false
-end
-
-function Entity:addComponent(componentName, component)
-	if self[componentName] == nil then
-		self[componentName] = component
-		return true
+function CEntity:addComponent(component, ...)
+	if self.components[component] == nil then
+		if #{...} == 0 then
+			self.components[component] = __NULL__
+		else
+			self.components[component] = component:create(...)
+		end
 	else
 		error("Could not add the component to the entity: The component has existed")
 	end
 end
 
-function Entity:removeComponent(componentName)
-	if self[componentName] then
-		self[componentName] = nil
-		return true
+function CEntity:removeComponent(component, ...)
+	self.components[component] = nil
+	for i = 1, #{...} do
+		local c = select(i, ...)
+		if self.components[c] then
+			self.components[c] = nil
+		end
 	end
-	return false
 end
 
-function Entity:__tostring()
-	return string.format("Entity Object[%s]", self.class.name)
+function CEntity:get(component)
+	if self.components[component] then
+		if self.components[component] == __NULL__ then
+			return nil
+		end
+		if type(self.components[component]) ~= "table" then
+			local value = self.components[component]
+			self.components[component] = {value}
+		end
+		return self.components[component]
+	end
 end
 
-return Entity
+function CEntity:getComponentsList()
+	return self.components
+end
+
+function CEntity:contains(component)
+	return self.components[component] ~= nil
+end
+
+return CEntity

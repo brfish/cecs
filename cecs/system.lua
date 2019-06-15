@@ -1,41 +1,104 @@
+local BASEDIR = (...):match("(.-)[^%.]+$")
+local class = require(BASEDIR .. "class")
 
-local System = class("Cherry_cecs_System")
+local OrderedTable = require(BASEDIR .. "ordered_table")
 
-function System:initialize()
-	self.alive = true
-	self.active = true
+local CSystem = class("cecs_system")
+
+function CSystem:init(component, ...)
+
+	self.world = nil
+	self.filter = OrderedTable.new()
+	self.entityCache = OrderedTable.new()
+	
+	for i = 1, #{...} do
+		local c = select(i, ...)
+		if not self.filter:exists(c) then
+			self.filter:insert(c)
+		end
+	end
 end
 
-function System:onAdd(entity)
+function CSystem:getComponentFilter()
+	return self.filter
 end
 
-function System:onRemove(entity)
+function CSystem:setComponentFilter(filter)
+	self.filter:clear()
+	for i = 1, #filter do
+		self.filter:insert(filter[i])
+	end
 end
 
-function System:update(entityManager, dt)
+function CSystem:addComponentFilter(component)
+	if not self.filter.exists(component) then
+		self.filter:insert(component)
+	end
 end
 
-function System:trigger(event)
+function CSystem:removeComponentFilter(component)
+	if self.filter:exists(component) then
+		self.filter:remove(component)
+	end
+end
+
+function CSystem:setWorld(world)
+	if world then
+		self.world = world
+	else
+		self.world = nil
+	end
+end
+
+function CSystem:getEntities()
+	return self.entityCache
+end
+
+function CSystem:existsEntity(entity)
+	return self.entityCache:exists(entity)
+end
+
+function CSystem:addEntity(entity)
+	if not self.entityCache:exists(entity) then
+		self.entityCache:insert(entity)
+	end
+end
+
+function CSystem:removeEntity(entity)
+	if self.entityCache:exists(entity) then
+		self.entityCache:remove(entity)
+	end
+end
+
+function CSystem:eligible(entity)
+	local filterIterator = self.filter:iterator()
+	while filterIterator do
+		local component = filterIterator:get()
+		if not entity:contains(component) then
+			return false
+		end
+	end
+	return true
+end
+
+function CSystem:update(dt)
+end
+
+
+
+function CSystem:onAdd(entity)
+end
+
+function CSystem:onRemove(entity)
+end
+
+
+
+function CSystem:trigger(event)
 
 end
 
-function System:draw(entityManager, dt)
+function CSystem:draw(entityManager, dt)
 end
 
-function System:isAlive()
-	return self.alive
-end
-
-function System:kill()
-	self.alive = false
-end
-
-function System:isActive()
-	return self.active
-end
-
-function System:setActive(a)
-	self.active = a
-end
-
-return System
+return CSystem
