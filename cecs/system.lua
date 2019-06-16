@@ -1,104 +1,78 @@
+
 local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 
-local OrderedTable = require(BASEDIR .. "ordered_table")
-
 local CSystem = class("cecs_system")
 
-function CSystem:init(component, ...)
-
+function CSystem:init(filters)
 	self.world = nil
-	self.filter = OrderedTable.new()
-	self.entityCache = OrderedTable.new()
-	
-	for i = 1, #{...} do
-		local c = select(i, ...)
-		if not self.filter:exists(c) then
-			self.filter:insert(c)
-		end
-	end
-end
 
-function CSystem:getComponentFilter()
-	return self.filter
-end
-
-function CSystem:setComponentFilter(filter)
-	self.filter:clear()
-	for i = 1, #filter do
-		self.filter:insert(filter[i])
-	end
-end
-
-function CSystem:addComponentFilter(component)
-	if not self.filter.exists(component) then
-		self.filter:insert(component)
-	end
-end
-
-function CSystem:removeComponentFilter(component)
-	if self.filter:exists(component) then
-		self.filter:remove(component)
-	end
+	self.entities = {}
+	self.filters = filters or {}
+	self.active = true
+	self.id = -1
 end
 
 function CSystem:setWorld(world)
-	if world then
-		self.world = world
-	else
-		self.world = nil
+	self.world = world
+end
+
+function CSystem:setFilters(filters)
+	self.filters = filters
+end
+
+function CSystem:addFilter(filter)
+	for i = 1, #self.filters do
+		if self.filters[i] == filter then
+			error("Fail to add filter to system: the filter has existed")
+			return
+		end
 	end
+	self.filters[#self.filters + 1] = filter
 end
 
-function CSystem:getEntities()
-	return self.entityCache
-end
-
-function CSystem:existsEntity(entity)
-	return self.entityCache:exists(entity)
+function CSystem:removeFilter(filter)
+	for i = #self.filters, 1, -1 do
+		if self.filters[i] == filter then
+			table.remove(self.filters, i)
+			return true
+		end
+	end
+	return false
 end
 
 function CSystem:addEntity(entity)
-	if not self.entityCache:exists(entity) then
-		self.entityCache:insert(entity)
-	end
+	self.entities[entity.id] = entity
 end
 
 function CSystem:removeEntity(entity)
-	if self.entityCache:exists(entity) then
-		self.entityCache:remove(entity)
-	end
+	self.entities[entity.id] = nil
 end
 
 function CSystem:eligible(entity)
-	local filterIterator = self.filter:iterator()
-	while filterIterator do
-		local component = filterIterator:get()
-		if not entity:contains(component) then
+	for i = 1, #self.filters do
+		local filter = self.filters[i]
+		if not entity:contains(filter) then
 			return false
 		end
 	end
 	return true
 end
 
-function CSystem:update(dt)
+function CSystem:getEntities()
+	return self.entities
 end
 
-
-
-function CSystem:onAdd(entity)
+function CSystem:clearEntities()
+	self.entities = {}
 end
 
-function CSystem:onRemove(entity)
+function CSystem:activate()
+	self.active = true
 end
 
-
-
-function CSystem:trigger(event)
-
-end
-
-function CSystem:draw(entityManager, dt)
+function CSystem:deactivate()
+	self.active = false
 end
 
 return CSystem

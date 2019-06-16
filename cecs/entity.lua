@@ -3,8 +3,19 @@ local class = require(BASEDIR .. "class")
 
 local CEntity = class("cecs_entity")
 
+local __NULL__ = {"__NULL__"}
+
 function CEntity:init()
+	self.entityManager = nil
+
 	self.components = {}
+	self.id = -1
+
+	self.active = true
+end
+
+function CEntity:setManager(manager)
+	self.entityManager = manager
 end
 
 function CEntity:addComponent(component, ...)
@@ -48,6 +59,14 @@ end
 
 function CEntity:contains(component)
 	return self.components[component] ~= nil
+end
+
+function CEntity:activate()
+	self.active = true
+end
+
+function CEntity:deactivate()
+	self.active = false
 end
 
 return CEntity
