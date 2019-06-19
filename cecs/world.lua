@@ -1,13 +1,21 @@
 local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 
-local OrderedTable = require(BASEDIR .. "ordered_table")
+local ComponentsPool = require(BASEDIR .. "component").Pool
+
 local EntityManager = require(BASEDIR .. "entity_manager")
+local EventManager = require(BASEDIR .. "event_manager")
+
+local BuiltinEvents = require(BASEDIR .. "builtin_events")
 
 local CWorld = class("cecs_world")
 
 function CWorld:init()
+	self.componentsPool = ComponentsPool.new()
+
 	self.entityManager = EntityManager.new()
+
+	self.eventManager = EventManager.new()
 
 	self.entityUpdateList = {}
 	
@@ -16,11 +24,25 @@ function CWorld:init()
 	self.systems.draw = {point = 0, objects = {}, size = 0}
 	self.registeredSystems = {}
 
+	self.eventManagerOptions = {
+		event_entity_added_enable = false,
+		event_entity_removed_enable = false,
+		event_component_added_enable = false,
+		event_component_removed_enable = false,
+		event_system_added_enable = false,
+		event_system_removed_enable = false
+	}
+end
 
+function CWorld:setEntityManager(entityManager)
+	self.entityManager = entityManager
+end
+
+function CWorld:setEventManager(eventManager)
+	self.eventManager = eventManager
 end
 
 function CWorld:addEntity(entity)
-
 	self.entityManager:addEntity(entity)
 
 	entity:setManager(self.entityManager)
@@ -28,16 +50,23 @@ function CWorld:addEntity(entity)
 	if entity.update then
 		self.entityUpdateList[#self.entityUpdateList + 1] = entity
 	end
-
 	for _, system in pairs(self.systems.update.objects) do
 		if system:eligible(entity) then
 			system:addEntity(entity)
+			if self.eventManagerOptions.event_entity_added_enable then
+				self.eventManager:queueEvent(
+					BuiltinEvents.EVENT_ENTITY_ADDED(system, entity))
+			end
 		end
 	end
 
 	for _, system in pairs(self.systems.draw.objects) do
 		if system:eligible(entity) then
 			system:addEntity(entity)
+			if self.eventManagerOptions.event_entity_added_enable then
+				self.eventManager:queueEvent(
+					BuiltinEvents.EVENT_ENTITY_ADDED(system, entity))
+			end
 		end
 	end
 
@@ -59,10 +88,18 @@ function CWorld:removeEntity(entity)
 
 	for _, system in pairs(self.systems.update) do
 		system:removeEntity(entity)
+		if self.eventManagerOptions.event_entity_removed_enable then
+				self.eventManager:queueEvent(
+					BuiltinEvents.EVENT_ENTITY_REMOVED(system, entity))
+		end
 	end
 
 	for _, system in pairs(self.systems.draw) do
 		system:removeEntity(entity)
+		if self.eventManagerOptions.event_entity_removed_enable then
+				self.eventManager:queueEvent(
+					BuiltinEvents.EVENT_ENTITY_REMOVED(system, entity))
+		end
 	end
 end
 
@@ -85,7 +122,7 @@ function CWorld:addSystem(system, callback)
 		self.systems.update.point = self.systems.update.point + 1
 		local point = self.systems.update.point
 		self.systems.update.objects[point] = system
-		self.registeredSystems[system] = {
+		self.registeredSystems[name] = {
 			callback = "update", 
 			index = point
 		}
@@ -96,11 +133,16 @@ function CWorld:addSystem(system, callback)
 		self.systems.draw.point = self.systems.draw.point + 1
 		local point = self.systems.draw.point
 		self.systems.draw.objects[point] = system
-		self.registeredSystems[system] = {
+		self.registeredSystems[name] = {
 			callback = "draw", 
 			index = point
 		}
 		self.systems.draw.size = self.systems.draw.size + 1
+	end
+
+	if self.eventManagerOptions.event_system_added_enable then
+		self.eventManager:queueEvent(
+			BuiltinEvents.EVENT_SYSTEM_ADDED(self, system))
 	end
 
 	local entities = self.entityManager:getAllEntities()
@@ -122,10 +164,15 @@ function CWorld:removeSystem(system)
 		return
 	end
 
-	local callback, index = self.registeredSystems[system].callback, self.registeredSystems[system].index
+	local callback, index = self.registeredSystems[name].callback, self.registeredSystems[name].index
 	self.systems[callback].objects[index] = nil
-	self.registeredSystems[system] = nil
+	self.registeredSystems[name] = nil
 	self.systems[callback].size = self.systems[callback].size - 1
+
+	if self.eventManagerOptions.event_system_added_enable then
+		self.eventManager:queueEvent(
+			BuiltinEvents.EVENT_SYSTEM_REMOVED(self, system))
+	end
 end
 
 function CWorld:stopSystem(system)
@@ -139,7 +186,7 @@ function CWorld:stopSystem(system)
 	system:deactivate()
 end
 
-function CWorld:continueSystem(system)
+function CWorld:startSystem(system)
 	local name = system.__cname
 
 	if not self.registeredSystems[name] then

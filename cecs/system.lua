@@ -5,7 +5,9 @@ local class = require(BASEDIR .. "class")
 local CSystem = class("cecs_system")
 
 function CSystem:init(filters)
+	
 	self.world = nil
+	self.eventManager = nil
 
 	self.entities = {}
 	self.filters = filters or {}
@@ -14,7 +16,19 @@ function CSystem:init(filters)
 end
 
 function CSystem:setWorld(world)
-	self.world = world
+	if world then
+		self.world = world
+		return
+	end
+	self.world = nil
+end
+
+function CSystem:setEventManager(manager)
+	if manager then 
+		self.eventManager = manager
+		return
+	end
+	self.eventManager = nil
 end
 
 function CSystem:setFilters(filters)

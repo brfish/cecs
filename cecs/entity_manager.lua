@@ -4,10 +4,17 @@ local class = require(BASEDIR .. "class")
 local CEntityManager = class("cecs_entitymanager")
 
 function CEntityManager:init()
+
 	self.entities = {}
 
 	self.point = 0
+
 	self.size = 0
+end
+
+function CEntityManager:assignNewId()
+	self.point = self.point + 1
+	return self.point
 end
 
 function CEntityManager:contains(entity)
@@ -36,18 +43,24 @@ function CEntityManager:removeEntity(entity)
 	end
 	self.size = self.size - 1
 	self.entities[entity.id] = nil
+	entity:setManager()
+
 end
 
 function CEntityManager:clear()
+	for _, entity in pairs(self.entities) do
+		entity:setManager()
+	end
 	self.entities = {}
 	self.point = 0
 	self.size = 0
 end
 
-function CEntityManager:getByEntityID(id)
+function CEntityManager:getByEntityId(id)
 	if self.entities[id] then
 		return self.entities[id]
 	end
+	return nil
 end
 
 function CEntityManager:getAllEntities()
