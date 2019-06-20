@@ -31,17 +31,19 @@ function EVENT_COMPONENT_REMOVED:init(entity, component)
 end
 
 local EVENT_SYSTEM_ADDED = class("EVENT_SYSTEM_ADDED", CEvent)
-function EVENT_SYSTEM_ADDED:init(world, system)
+function EVENT_SYSTEM_ADDED:init(world, system, callback)
 	self.super.init(self)
 	self.world = world
 	self.system = system
+	self.callback = callback
 end
 
 local EVENT_SYSTEM_REMOVED = class("EVENT_SYSTEM_REMOVED", CEvent)
-function EVENT_SYSTEM_REMOVED:init(world, system)
+function EVENT_SYSTEM_REMOVED:init(world, system, callback)
 	self.super.init(self)
 	self.world = world
 	self.system = system
+	self.callback = callback
 end
 
 return {
