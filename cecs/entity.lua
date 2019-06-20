@@ -3,8 +3,6 @@ local class = require(BASEDIR .. "class")
 
 local CEntity = class("cecs_entity")
 
-local __NULL__ = {"__NULL__"}
-
 function CEntity:init()
 
 	self.entityManager = nil
@@ -14,6 +12,10 @@ function CEntity:init()
 	self.id = -1
 
 	self.active = true
+end
+
+function CEntity:isActive()
+	return self.active
 end
 
 function CEntity:setManager(manager)

@@ -66,7 +66,7 @@ end
 
 function CEventManager:abortFirstEvent(event)
 
-	local eventType = eventType:getType()
+	local eventType = event:getType()
 
 	local active = self.queue[self.activeQueue]
 
@@ -81,7 +81,7 @@ end
 
 function CEventManager:abortLastEvent(event)
 
-	local eventType = eventType:getType()
+	local eventType = event:getType()
 
 	local active = self.queue[self.activeQueue]
 
@@ -96,7 +96,7 @@ end
 
 function CEventManager:abortAllEvent(event)
 
-	local eventType = eventType:getType()
+	local eventType = event:getType()
 
 	local active = self.queue[self.activeQueue]
 
@@ -108,11 +108,19 @@ function CEventManager:abortAllEvent(event)
 
 end
 
+function CEventManager:trigger(event)
 
+	local eventType = event:getType()
+	for i = 1, #self.listeners[eventType] do
+		local listener = self.listeners[eventType][i]
+		listener:receive(event)
+	end
+	
+end
 
-function CEventManager:update(maxtime)
+function CEventManager:update(timelimit)
 	local startTime = love.timer.getTime()
-	maxtime = maxtime or 1 / 120
+	timelimit = timelimit or 1 / 120
 
 	local current = self.queue[self.activeQueue]
 	self.activeQueue = (self.activeQueue + 1) % 2
@@ -127,7 +135,7 @@ function CEventManager:update(maxtime)
 				listener:receive(current[point])
 			end
 
-		if love.timer.getTime() - startTime >= maxtime then
+		if love.timer.getTime() - startTime >= timelimit then
 			break
 		end
 

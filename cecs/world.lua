@@ -17,11 +17,12 @@ function CWorld:init()
 	self.entityManager = EntityManager.new()
 
 	self.eventManager = EventManager.new()
-
-	self.entityUpdateList = {}
 	
 	self.systems = {}
 	self.registeredSystems = {}
+
+	self.__EVENT_SYSTEMS = {}
+	self.__PROCESS_SYSTEMS = {}
 
 	self.eventManagerOptions = {
 		event_entity_added_enable = false,
@@ -80,13 +81,20 @@ end
 
 function CWorld:addSystem(system, callback)
 
+	callback = callback or "NULL"
+
 	local name = system.__cname
-	if self.registeredSystems[callback][name] then
+
+	if not self.registeredSystems[name] then
+		self.registeredSystems[name] = {}
+	end
+
+	if self.registeredSystems[name][callback] then
 		error("Fail to add system to the world: the system " .. name .. " has existed")
 		return
 	end
 
-	if not system[callback] then
+	if callback ~= "NULL" and not system[callback] then
 		error("Fail to add system to the world: the system is without the designative callback function")
 		return
 	end
@@ -175,8 +183,12 @@ function CWorld:getAllEntities()
 end
 
 function CWorld:run(callback, ...)
+	if callback == "NULL" then
+		return
+	end
+
 	if not self.systems[callback] then
-		error("Fail to run the callbacks: the callback is not existed")
+		--error("Fail to run the callbacks: the callback is not existed")
 		return
 	end
 

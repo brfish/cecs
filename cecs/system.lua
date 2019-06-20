@@ -5,7 +5,7 @@ local class = require(BASEDIR .. "class")
 local CSystem = class("cecs_system")
 
 function CSystem:init(filters)
-	
+
 	self.world = nil
 	self.eventManager = nil
 
@@ -77,6 +77,14 @@ function CSystem:getEntities()
 	return self.entities
 end
 
+function CSystem:foreach(update)
+	for _, entity in pairs(self.entities) do
+		if entity.active then
+			update(entity)
+		end
+	end
+end
+
 function CSystem:clearEntities()
 	self.entities = {}
 end
@@ -87,6 +95,10 @@ end
 
 function CSystem:deactivate()
 	self.active = false
+end
+
+function CSystem:isActive()
+	return self.active
 end
 
 return CSystem
