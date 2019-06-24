@@ -12,7 +12,6 @@ function CSystem:init(filters)
 	self.entities = {}
 	self.filters = filters or {}
 	self.active = true
-	self.id = -1
 end
 
 function CSystem:setWorld(world)
@@ -24,11 +23,7 @@ function CSystem:setWorld(world)
 end
 
 function CSystem:setEventManager(manager)
-	if manager then 
-		self.eventManager = manager
-		return
-	end
-	self.eventManager = nil
+	self.eventManager = manager or nil
 end
 
 function CSystem:setFilters(filters)

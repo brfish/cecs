@@ -6,10 +6,17 @@ local CEventManager = class("cecs_eventmanager")
 
 function CEventManager:init()
 
+	self.world = nil
+
 	self.listeners = {}
 
 	self.activeQueue = 0
 	self.queue = {[0] = {}, [1] = {}}
+
+end
+
+function CEventManager:setWorld(world)
+	self.world = world or nil
 end
 
 function CEventManager:addListener(eventType, listener)
@@ -58,10 +65,8 @@ function CEventManager:queueEvent(event)
 
 	local eventType = event:getType()
 
-	--if self.listeners[eventType] then
-		local active = self.queue[self.activeQueue]
-		active[#active + 1] = event
-	--end
+	local active = self.queue[self.activeQueue]
+	active[#active + 1] = event
 end
 
 function CEventManager:abortFirstEvent(event)
@@ -108,7 +113,7 @@ function CEventManager:abortAllEvent(event)
 
 end
 
-function CEventManager:trigger(event)
+function CEventManager:triggerEvent(event)
 
 	local eventType = event:getType()
 	for i = 1, #self.listeners[eventType] do
@@ -116,6 +121,21 @@ function CEventManager:trigger(event)
 		listener:receive(event)
 	end
 	
+end
+
+function CEventManager:triggerAll()
+	local current = self.queue[self.activeQueue]
+
+	self.activeQueue = (self.activeQueue + 1) % 2
+	self.queue[self.activeQueue] = {}
+
+	for i = 1, #current do
+		local eventType = current[i]:getType()
+		for j = 1, #self.listeners[eventType] do
+			local listener = self.listeners[eventType][j]
+			listener:receive(current[i])
+		end
+	end
 end
 
 function CEventManager:update(timelimit)
@@ -146,6 +166,17 @@ function CEventManager:update(timelimit)
 		for i = point + 1, #current do
 			self.queue[self.activeQueue][#self.queue[self.activeQueue] + 1] = current[i]
 		end
+	end
+end
+
+function CEventManager:clear()
+	self.queue[0] = {}
+	self.queue[1] = {}
+
+	self.activeQueue = 0
+
+	for eventType, _ in pairs(self.listeners) do
+		self.listeners[eventType] = {}
 	end
 end
 

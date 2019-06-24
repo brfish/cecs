@@ -4,12 +4,17 @@ local class = require(BASEDIR .. "class")
 local CEntityManager = class("cecs_entitymanager")
 
 function CEntityManager:init()
+	self.world = nil
 
 	self.entities = {}
 
 	self.point = 0
 
 	self.size = 0
+end
+
+function CEntityManager:setWorld(world)
+	self.world = world or nil
 end
 
 function CEntityManager:assignNewId()

@@ -17,10 +17,11 @@ function EVENT_ENTITY_REMOVED:init(system, entity)
 end
 
 local EVENT_COMPONENT_ADDED = class("EVENT_COMPONENT_ADDED", CEvent)
-function EVENT_COMPONENT_ADDED:init(entity, component)
+function EVENT_COMPONENT_ADDED:init(entity, component, ...)
 	self.super.init(self)
 	self.entity = entity
 	self.component = component
+	self.parameters = {...}
 end
 
 local EVENT_COMPONENT_REMOVED = class("EVENT_COMPONENT_REMOVED", CEvent)
@@ -46,6 +47,27 @@ function EVENT_SYSTEM_REMOVED:init(world, system, callback)
 	self.callback = callback
 end
 
+local EVENT_SYSTEM_LOADED = class("EVENT_SYSTEM_LOADED", CEvent)
+function EVENT_SYSTEM_LOADED:init(system, callback)
+	self.super.init(self)
+	self.system = system
+	self.callback = callback
+end
+
+local EVENT_SYSTEM_STOPPED = class("EVENT_SYSTEM_STOPPED", CEvent)
+function EVENT_SYSTEM_STOPPED:init(system, callback)
+	self.super.init(self)
+	self.system = system
+	self.callback = callback
+end
+
+local EVENT_SYSTEM_STARTED = class("EVENT_SYSTEM_STARTED", CEvent)
+function EVENT_SYSTEM_STARTED:init(system, callback)
+	self.super.init(self)
+	self.system = system
+	self.callback = callback
+end
+
 return {
 	EVENT_ENTITY_ADDED = EVENT_ENTITY_ADDED,
 	EVENT_ENTITY_REMOVED = EVENT_ENTITY_REMOVED,
@@ -54,7 +76,10 @@ return {
 	EVENT_COMPONENT_REMOVED = EVENT_COMPONENT_REMOVED,
 
 	EVENT_SYSTEM_ADDED = EVENT_SYSTEM_ADDED,
-	EVENT_SYSTEM_REMOVED = EVENT_SYSTEM_REMOVED
+	EVENT_SYSTEM_REMOVED = EVENT_SYSTEM_REMOVED,
 
+	EVENT_SYSTEM_LOADED = EVENT_SYSTEM_LOADED,
 
+	EVENT_SYSTEM_STOPPED = EVENT_SYSTEM_STOPPED,
+	EVENT_SYSTEM_STARTED = EVENT_SYSTEM_STARTED
 }

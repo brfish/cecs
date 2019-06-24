@@ -15,8 +15,10 @@ function CWorld:init()
 	self.componentsPool = ComponentsPool.new()
 
 	self.entityManager = EntityManager.new()
+	self.entityManager:setWorld(self)
 
 	self.eventManager = EventManager.new()
+	self.eventManager:setWorld(self)
 	
 	self.systems = {}
 	self.registeredSystems = {}
@@ -30,7 +32,10 @@ function CWorld:init()
 		event_component_added_enable = false,
 		event_component_removed_enable = false,
 		event_system_added_enable = false,
-		event_system_removed_enable = false
+		event_system_removed_enable = false,
+		event_system_loaded_enable = false,
+		event_system_stopped_enable = false,
+		event_system_started_enable = false
 	}
 end
 
@@ -53,7 +58,7 @@ function CWorld:addEntity(entity)
 				system:addEntity(entity)
 				if self.eventManagerOptions.event_entity_added_enable then
 					self.eventManager:queueEvent(
-						BuiltinEvents.EVENT_ENTITY_ADDED(system, entity))
+						BuiltinEvents.EVENT_ENTITY_ADDED.new(system, entity))
 				end
 			end
 		end
@@ -72,7 +77,7 @@ function CWorld:removeEntity(entity)
 				system:removeEntity(entity)
 				if self.eventManagerOptions.event_entity_removed_enable then
 					self.eventManager:queueEvent(
-						BuiltinEvents.EVENT_ENTITY_REMOVED(system, entity))
+						BuiltinEvents.EVENT_ENTITY_REMOVED.new(system, entity))
 				end
 			end
 		end
@@ -112,13 +117,21 @@ function CWorld:addSystem(system, callback)
 
 	if self.eventManagerOptions.event_system_added_enable then
 		self.eventManager:queueEvent(
-			BuiltinEvents.EVENT_SYSTEM_ADDED(self, system))
+			BuiltinEvents.EVENT_SYSTEM_ADDED.new(self, system, callback))
 	end
 
 	local entities = self.entityManager:getAllEntities()
 	for _, entity in pairs(entities) do
 		if system:eligible(entity) then
 			system:addEntity(entity)
+		end
+	end
+
+	if system["load"] and type(system["load"]) == "function" then
+		system:load()
+		if self.eventManagerOptions.event_system_loaded_enable then
+			self.eventManager:queueEvent(
+				BuiltinEvents.EVENT_SYSTEM_LOADED.new(system))
 		end
 	end
 
@@ -141,7 +154,7 @@ function CWorld:removeSystem(system, callback)
 
 	if self.eventManagerOptions.event_system_removed_enable then
 		self.eventManager:queueEvent(
-			BuiltinEvents.EVENT_SYSTEM_REMOVED(self, system, callback))
+			BuiltinEvents.EVENT_SYSTEM_REMOVED.new(self, system, callback))
 	end
 end
 
@@ -153,6 +166,12 @@ function CWorld:stopSystem(system, callback)
 		return
 	end
 
+	if self.eventManagerOptions.event_system_stopped_enable then
+		if system.active then
+			self.eventManager:queueEvent(BuiltinEvents.EVENT_SYSTEM_STOPPED.new(system, callback))
+		end
+	end
+
 	system:deactivate()
 end
 
@@ -162,6 +181,12 @@ function CWorld:startSystem(system, callback)
 	if not self.registeredSystems[name][callback] then
 		error("Faile to continue the system: the system is not existed")
 		return
+	end
+
+	if self.eventManagerOptions.event_system_started_enable then
+		if not system.active then
+			self.eventManager:queueEvent(BuiltinEvents.EVENT_SYSTEM_STARTED.new(system, callback))
+		end
 	end
 
 	system:activate()
@@ -188,7 +213,6 @@ function CWorld:run(callback, ...)
 	end
 
 	if not self.systems[callback] then
-		--error("Fail to run the callbacks: the callback is not existed")
 		return
 	end
 

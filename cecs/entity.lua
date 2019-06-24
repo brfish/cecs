@@ -1,5 +1,7 @@
 local BASEDIR = (...):match("(.-)[^%.]+$")
+
 local class = require(BASEDIR .. "class")
+local BuiltinEvents = require(BASEDIR .. "builtin_events")
 
 local CEntity = class("cecs_entity")
 
@@ -37,6 +39,13 @@ function CEntity:addComponent(component, ...)
 		return
 	end
 
+	if not self.entityManager or not self.entityManager.world then return self end
+
+	local world = self.entityManager.world
+	if not world.eventManagerOptions.event_component_added_enable then return self end
+	
+	world.eventManager:queueEvent(BuiltinEvents.EVENT_COMPONENT_ADDED.new(component, self, ...))
+
 	return self
 end
 
@@ -46,6 +55,13 @@ function CEntity:removeComponent(component)
 	else
 		error("Fail to remove the component from the entity: the component is not existed")
 	end
+
+	if not self.entityManager or not self.entityManager.world then return self end
+
+	local world = self.entityManager.world
+	if not world.eventManagerOptions.event_component_removed_enable then return self end
+	
+	world.eventManager:queueEvent(BuiltinEvents.EVENT_COMPONENT_REMOVED.new(component, self))
 
 	return self
 end
@@ -93,6 +109,10 @@ end
 
 function CEntity:deactivate()
 	self.active = false
+end
+
+function CEntity:isActive()
+	return self.active
 end
 
 return CEntity
