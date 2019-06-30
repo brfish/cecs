@@ -8,9 +8,13 @@ local EventManager = require(BASEDIR .. "event_manager")
 
 local BuiltinEvents = require(BASEDIR .. "builtin_events")
 
+local Types = require(BASEDIR .. "type_info")
+
 local CWorld = class("cecs_world")
 
 function CWorld:init()
+
+	self.__isWorld = true
 
 	self.componentsPool = ComponentsPool.new()
 
@@ -40,14 +44,25 @@ function CWorld:init()
 end
 
 function CWorld:setEntityManager(entityManager)
+	if not Types.isEntityManager(entityManager) then
+		return
+	end
 	self.entityManager = entityManager
 end
 
 function CWorld:setEventManager(eventManager)
+	if not Types.isEventManager(eventManager) then
+		return
+	end
 	self.eventManager = eventManager
 end
 
 function CWorld:addEntity(entity)
+
+	if not Types.isEntity(entity) then
+		return 
+	end
+
 	self.entityManager:addEntity(entity)
 
 	entity:setManager(self.entityManager)
@@ -69,6 +84,10 @@ end
 
 function CWorld:removeEntity(entity)
 
+	if not Types.isEntity(entity) then
+		return 
+	end
+
 	self.entityManager:removeEntity(entity)
 
 	for _, callback in pairs(self.systems) do
@@ -85,6 +104,10 @@ function CWorld:removeEntity(entity)
 end
 
 function CWorld:addSystem(system, callback)
+
+	if not Types.isSystem(system) then
+		return
+	end
 
 	callback = callback or "NULL"
 
@@ -140,6 +163,10 @@ end
 
 function CWorld:removeSystem(system, callback)
 
+	if not Types.isSystem(system) then
+		return
+	end
+
 	local name = system.__cname		
 
 	if not self.registeredSystems[name][callback] then
@@ -159,6 +186,11 @@ function CWorld:removeSystem(system, callback)
 end
 
 function CWorld:stopSystem(system, callback)
+
+	if not Types.isSystem(system) then
+		return
+	end
+
 	local name = system.__cname
 
 	if not self.registeredSystems[name][callback] then
@@ -176,6 +208,11 @@ function CWorld:stopSystem(system, callback)
 end
 
 function CWorld:startSystem(system, callback)
+
+	if not Types.isSystem(system) then
+		return
+	end
+
 	local name = system.__cname
 
 	if not self.registeredSystems[name][callback] then
@@ -193,6 +230,11 @@ function CWorld:startSystem(system, callback)
 end
 
 function CWorld:containsSystem(system, callback)
+
+	if not Types.isSystem(system) then
+		return
+	end
+
 	if callback then
 		return self.registeredSystems[system][callback] ~= nil
 	end
@@ -200,6 +242,10 @@ function CWorld:containsSystem(system, callback)
 end
 
 function CWorld:containsEntity(entity)
+	if not Types.isEntity(entity) then
+		return
+	end
+	
 	return self.entityManager:contains(entity)
 end
 

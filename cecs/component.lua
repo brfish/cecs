@@ -1,9 +1,14 @@
 local BASEDIR = (...):match("(.-)[^%.]+$")
+
 local class = require(BASEDIR .. "class")
+local Types = require(BASEDIR .. "type_info")
 
 local CComponent = class("cecs_component")
 
 function CComponent:init(name, construction)
+
+	self.__isComponent = true
+
 	self.construction = construction
 	self.name = name
 end
@@ -27,6 +32,11 @@ function CComponentPool:init()
 end
 
 function CComponentPool:add(component)
+
+	if not Types.isComponent(component) then
+		return
+	end
+
 	if component.name then
 		if not self.components[component.name] then
 			self.components[component.name] = component
@@ -39,6 +49,11 @@ function CComponentPool:add(component)
 end
 
 function CComponentPool:set(component)
+
+	if not Types.isComponent(component) then
+		return
+	end
+	
 	if component.name then
 		self.components[component.name] = component
 	else

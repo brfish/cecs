@@ -5,6 +5,9 @@ local class = require(BASEDIR .. "class")
 local CEvent = class("cecs_event")
 
 function CEvent:init()
+
+	self.__isEvent = true
+	
 	local name = self.__cname
 
 	if not name or type(name) ~= "string" then

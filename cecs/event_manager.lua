@@ -1,10 +1,13 @@
-
 local BASEDIR = (...):match("(.-)[^%.]+$")
+
 local class = require(BASEDIR .. "class")
+local Types = require(BASEDIR .. "type_info")
 
 local CEventManager = class("cecs_eventmanager")
 
 function CEventManager:init()
+
+	self.__isEventManager = true
 
 	self.world = nil
 
@@ -16,10 +19,17 @@ function CEventManager:init()
 end
 
 function CEventManager:setWorld(world)
+	if not Types.isWorld(world) then
+		return
+	end
 	self.world = world or nil
 end
 
 function CEventManager:addListener(eventType, listener)
+
+	if not Types.isSystem(listener) then
+		return
+	end
 
 	if self.listeners[eventType] == nil then
 		self.listeners[eventType] = {}
@@ -42,6 +52,10 @@ end
 
 function CEventManager:removeListener(eventType, listener)
 
+	if not Types.isSystem(listener) then
+		return
+	end
+
 	if not self.listeners[eventType] then
 		error("Fail to remove the listener: the listener is not existed")
 		return
@@ -63,6 +77,10 @@ end
 
 function CEventManager:queueEvent(event)
 
+	if not Types.isEvent(event) then
+		return
+	end
+
 	local eventType = event:getType()
 
 	local active = self.queue[self.activeQueue]
@@ -70,6 +88,10 @@ function CEventManager:queueEvent(event)
 end
 
 function CEventManager:abortFirstEvent(event)
+
+	if not Types.isEvent(event) then
+		return
+	end
 
 	local eventType = event:getType()
 
@@ -86,6 +108,10 @@ end
 
 function CEventManager:abortLastEvent(event)
 
+	if not Types.isEvent(event) then
+		return
+	end
+
 	local eventType = event:getType()
 
 	local active = self.queue[self.activeQueue]
@@ -101,6 +127,10 @@ end
 
 function CEventManager:abortAllEvent(event)
 
+	if not Types.isEvent(event) then
+		return
+	end
+
 	local eventType = event:getType()
 
 	local active = self.queue[self.activeQueue]
@@ -114,6 +144,10 @@ function CEventManager:abortAllEvent(event)
 end
 
 function CEventManager:triggerEvent(event)
+
+	if not Types.isEvent(event) then
+		return
+	end
 
 	local eventType = event:getType()
 	for i = 1, #self.listeners[eventType] do

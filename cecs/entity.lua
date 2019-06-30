@@ -2,10 +2,13 @@ local BASEDIR = (...):match("(.-)[^%.]+$")
 
 local class = require(BASEDIR .. "class")
 local BuiltinEvents = require(BASEDIR .. "builtin_events")
+local Types = require(BASEDIR .. "type_info")
 
 local CEntity = class("cecs_entity")
 
 function CEntity:init()
+
+	self.__isEntity = true
 
 	self.entityManager = nil
 
@@ -21,6 +24,11 @@ function CEntity:isActive()
 end
 
 function CEntity:setManager(manager)
+
+	if not Types.isEntityManager(manager) then
+		return
+	end
+
 	if manager then
 		self.entityManager = manager
 		self.id = manager:assignNewId()
@@ -31,7 +39,13 @@ function CEntity:setManager(manager)
 end
 
 function CEntity:addComponent(component, ...)
+
+	if not Types.isComponent(component) then
+		return
+	end
+
 	local name = component.name
+
 	if self.components[name] == nil then
 		self.components[name] = component:generate(...)
 	else
@@ -50,6 +64,7 @@ function CEntity:addComponent(component, ...)
 end
 
 function CEntity:removeComponent(component)
+
 	if self.components[component] then
 		self.components[component] = nil
 	else

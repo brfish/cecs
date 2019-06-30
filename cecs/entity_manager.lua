@@ -1,9 +1,14 @@
 local BASEDIR = (...):match("(.-)[^%.]+$")
+
 local class = require(BASEDIR .. "class")
+local Types = require(BASEDIR .. "type_info")
 
 local CEntityManager = class("cecs_entitymanager")
 
 function CEntityManager:init()
+
+	self.__isEntityManager = true
+
 	self.world = nil
 
 	self.entities = {}
@@ -14,6 +19,9 @@ function CEntityManager:init()
 end
 
 function CEntityManager:setWorld(world)
+	if not Types.isWorld(world) then
+		return
+	end
 	self.world = world or nil
 end
 
@@ -23,6 +31,11 @@ function CEntityManager:assignNewId()
 end
 
 function CEntityManager:contains(entity)
+
+	if not Types.isEntity(entity) then
+		return
+	end
+
 	if entity.id == -1 then
 		return false
 	end
@@ -30,6 +43,11 @@ function CEntityManager:contains(entity)
 end
 
 function CEntityManager:addEntity(entity)
+
+	if not Types.isEntity(entity) then
+		return
+	end
+
 	if self.entities[entity.id] then
 		error("Fail to add entity to entity manager: the entity has existed")
 		return
@@ -42,6 +60,11 @@ function CEntityManager:addEntity(entity)
 end
 
 function CEntityManager:removeEntity(entity)
+
+	if not Types.isEntity(entity) then
+		return
+	end
+	
 	if entitiy.id == -1 or self.entities[entity.id] == nil then
 		error("Fail to remove entity from entity manager: the entity is not existed")
 		return

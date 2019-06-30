@@ -1,20 +1,27 @@
-
 local BASEDIR = (...):match("(.-)[^%.]+$")
+
 local class = require(BASEDIR .. "class")
+local Types = require(BASEDIR .. "type_info")
 
 local CSystem = class("cecs_system")
 
 function CSystem:init(filters)
 
+	self.__isSystem = true
+	
 	self.world = nil
 	self.eventManager = nil
 
 	self.entities = {}
 	self.filters = filters or {}
+
 	self.active = true
 end
 
 function CSystem:setWorld(world)
+	if not Types.isWorld(world) then
+		return
+	end
 	if world then
 		self.world = world
 		return
@@ -23,6 +30,9 @@ function CSystem:setWorld(world)
 end
 
 function CSystem:setEventManager(manager)
+	if not Types.isEventManager(manager) then
+		return
+	end
 	self.eventManager = manager or nil
 end
 
@@ -51,14 +61,23 @@ function CSystem:removeFilter(filter)
 end
 
 function CSystem:addEntity(entity)
+	if not Types.isEntity(entity) then
+		return
+	end
 	self.entities[entity.id] = entity
 end
 
 function CSystem:removeEntity(entity)
+	if not Types.isEntity(entity) then
+		return
+	end
 	self.entities[entity.id] = nil
 end
 
 function CSystem:eligible(entity)
+	if not Types.isEntity(entity) then
+		return
+	end
 	for i = 1, #self.filters do
 		local filter = self.filters[i]
 		if not entity:contains(filter) then
@@ -73,6 +92,9 @@ function CSystem:getEntities()
 end
 
 function CSystem:foreach(update)
+	if not update or type(update) ~= "function" then
+		return
+	end
 	for _, entity in pairs(self.entities) do
 		if entity.active then
 			update(entity)
