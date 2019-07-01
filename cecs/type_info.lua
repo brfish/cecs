@@ -1,4 +1,3 @@
-
 local Types = {}
 
 function Types.isComponent(obj)
@@ -38,6 +37,10 @@ function Types.typeinfo(obj)
 	if Types.isEntityManager(obj) then return "entitymanager" end
 	if Types.isEventManager(obj) then return "eventmanager" end
 	return type(obj)
+end
+
+function Types.error(obj, right)
+	error(string.format("Attempt to pass a wrong type: need a %s value instead of %s", typeinfo(right), typeinfo(obj)), 1)
 end
 
 return Types

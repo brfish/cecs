@@ -13,7 +13,6 @@ local Types = require(BASEDIR .. "type_info")
 local CWorld = class("cecs_world")
 
 function CWorld:init()
-
 	self.__isWorld = true
 
 	self.componentsPool = ComponentsPool.new()
@@ -45,14 +44,14 @@ end
 
 function CWorld:setEntityManager(entityManager)
 	if not Types.isEntityManager(entityManager) then
-		return
+		Types.error(entityManager, "entitymanager")
 	end
 	self.entityManager = entityManager
 end
 
 function CWorld:setEventManager(eventManager)
 	if not Types.isEventManager(eventManager) then
-		return
+		Types.error(eventManager, "eventmanager")
 	end
 	self.eventManager = eventManager
 end
@@ -60,7 +59,7 @@ end
 function CWorld:addEntity(entity)
 
 	if not Types.isEntity(entity) then
-		return 
+		Types.error(entity, "entity")
 	end
 
 	self.entityManager:addEntity(entity)
@@ -83,9 +82,8 @@ function CWorld:addEntity(entity)
 end
 
 function CWorld:removeEntity(entity)
-
 	if not Types.isEntity(entity) then
-		return 
+		Types.error(entity, "entity") 
 	end
 
 	self.entityManager:removeEntity(entity)
@@ -104,9 +102,8 @@ function CWorld:removeEntity(entity)
 end
 
 function CWorld:addSystem(system, callback)
-
 	if not Types.isSystem(system) then
-		return
+		Types.error(system, "system")
 	end
 
 	callback = callback or "NULL"
@@ -162,9 +159,8 @@ function CWorld:addSystem(system, callback)
 end
 
 function CWorld:removeSystem(system, callback)
-
 	if not Types.isSystem(system) then
-		return
+		Types.error(system, "system")
 	end
 
 	local name = system.__cname		
@@ -186,9 +182,8 @@ function CWorld:removeSystem(system, callback)
 end
 
 function CWorld:stopSystem(system, callback)
-
 	if not Types.isSystem(system) then
-		return
+		Types.error(system, "system")
 	end
 
 	local name = system.__cname
@@ -208,9 +203,8 @@ function CWorld:stopSystem(system, callback)
 end
 
 function CWorld:startSystem(system, callback)
-
 	if not Types.isSystem(system) then
-		return
+		Types.error(system, "system")
 	end
 
 	local name = system.__cname
@@ -230,9 +224,8 @@ function CWorld:startSystem(system, callback)
 end
 
 function CWorld:containsSystem(system, callback)
-
 	if not Types.isSystem(system) then
-		return
+		Types.error(system, "system")
 	end
 
 	if callback then
@@ -243,7 +236,7 @@ end
 
 function CWorld:containsEntity(entity)
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 	
 	return self.entityManager:contains(entity)

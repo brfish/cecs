@@ -6,7 +6,6 @@ local Types = require(BASEDIR .. "type_info")
 local CEntityManager = class("cecs_entitymanager")
 
 function CEntityManager:init()
-
 	self.__isEntityManager = true
 
 	self.world = nil
@@ -20,7 +19,7 @@ end
 
 function CEntityManager:setWorld(world)
 	if not Types.isWorld(world) then
-		return
+		Types.error(world, "world")
 	end
 	self.world = world or nil
 end
@@ -31,9 +30,8 @@ function CEntityManager:assignNewId()
 end
 
 function CEntityManager:contains(entity)
-
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 
 	if entity.id == -1 then
@@ -43,9 +41,8 @@ function CEntityManager:contains(entity)
 end
 
 function CEntityManager:addEntity(entity)
-
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 
 	if self.entities[entity.id] then
@@ -60,9 +57,8 @@ function CEntityManager:addEntity(entity)
 end
 
 function CEntityManager:removeEntity(entity)
-
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 	
 	if entitiy.id == -1 or self.entities[entity.id] == nil then

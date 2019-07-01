@@ -20,7 +20,7 @@ end
 
 function CSystem:setWorld(world)
 	if not Types.isWorld(world) then
-		return
+		Types.error(world, "world")
 	end
 	if world then
 		self.world = world
@@ -31,7 +31,7 @@ end
 
 function CSystem:setEventManager(manager)
 	if not Types.isEventManager(manager) then
-		return
+		Types.error(manager, "eventmanager")
 	end
 	self.eventManager = manager or nil
 end
@@ -62,21 +62,21 @@ end
 
 function CSystem:addEntity(entity)
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 	self.entities[entity.id] = entity
 end
 
 function CSystem:removeEntity(entity)
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 	self.entities[entity.id] = nil
 end
 
 function CSystem:eligible(entity)
 	if not Types.isEntity(entity) then
-		return
+		Types.error(entity, "entity")
 	end
 	for i = 1, #self.filters do
 		local filter = self.filters[i]

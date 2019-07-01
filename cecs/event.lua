@@ -1,4 +1,3 @@
-
 local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 

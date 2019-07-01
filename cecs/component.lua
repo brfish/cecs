@@ -6,7 +6,6 @@ local Types = require(BASEDIR .. "type_info")
 local CComponent = class("cecs_component")
 
 function CComponent:init(name, construction)
-
 	self.__isComponent = true
 
 	self.construction = construction
@@ -32,9 +31,8 @@ function CComponentPool:init()
 end
 
 function CComponentPool:add(component)
-
 	if not Types.isComponent(component) then
-		return
+		Types.error(component, "component")
 	end
 
 	if component.name then
@@ -49,9 +47,8 @@ function CComponentPool:add(component)
 end
 
 function CComponentPool:set(component)
-
 	if not Types.isComponent(component) then
-		return
+		Types.error(component, "component")
 	end
 	
 	if component.name then

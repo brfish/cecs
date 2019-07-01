@@ -6,7 +6,6 @@ local Types = require(BASEDIR .. "type_info")
 local CEventManager = class("cecs_eventmanager")
 
 function CEventManager:init()
-
 	self.__isEventManager = true
 
 	self.world = nil
@@ -20,15 +19,14 @@ end
 
 function CEventManager:setWorld(world)
 	if not Types.isWorld(world) then
-		return
+		Types.error(world, "world")
 	end
 	self.world = world or nil
 end
 
 function CEventManager:addListener(eventType, listener)
-
 	if not Types.isSystem(listener) then
-		return
+		Types.error(system, "system")
 	end
 
 	if self.listeners[eventType] == nil then
@@ -41,7 +39,7 @@ function CEventManager:addListener(eventType, listener)
 			return
 		end
 	end
-	print(tostring(listener.receive == nil), type(listener.receive))
+
 	if listener.receive == nil or type(listener.receive) ~= "function" then
 		error("Fail to add listener to event manager: the listener has no receive function")
 		return
@@ -51,9 +49,8 @@ function CEventManager:addListener(eventType, listener)
 end
 
 function CEventManager:removeListener(eventType, listener)
-
 	if not Types.isSystem(listener) then
-		return
+		Types.error(listener, "system")
 	end
 
 	if not self.listeners[eventType] then
@@ -76,9 +73,8 @@ function CEventManager:removeListener(eventType, listener)
 end
 
 function CEventManager:queueEvent(event)
-
 	if not Types.isEvent(event) then
-		return
+		Types.error(event, "event")
 	end
 
 	local eventType = event:getType()
@@ -88,9 +84,8 @@ function CEventManager:queueEvent(event)
 end
 
 function CEventManager:abortFirstEvent(event)
-
 	if not Types.isEvent(event) then
-		return
+		Types.error(event, "event")
 	end
 
 	local eventType = event:getType()
@@ -107,9 +102,8 @@ function CEventManager:abortFirstEvent(event)
 end
 
 function CEventManager:abortLastEvent(event)
-
 	if not Types.isEvent(event) then
-		return
+		Types.error(event, "event")
 	end
 
 	local eventType = event:getType()
@@ -126,9 +120,8 @@ function CEventManager:abortLastEvent(event)
 end
 
 function CEventManager:abortAllEvent(event)
-
 	if not Types.isEvent(event) then
-		return
+		Types.error(event, "event")
 	end
 
 	local eventType = event:getType()
@@ -144,9 +137,8 @@ function CEventManager:abortAllEvent(event)
 end
 
 function CEventManager:triggerEvent(event)
-
 	if not Types.isEvent(event) then
-		return
+		Types.error(event, "event")
 	end
 
 	local eventType = event:getType()
