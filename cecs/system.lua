@@ -5,8 +5,7 @@ local Types = require(BASEDIR .. "type_info")
 
 local CSystem = class("cecs_system")
 
-function CSystem:init(filters)
-
+function CSystem:init(filters, rejects)
 	self.__isSystem = true
 	
 	self.world = nil
@@ -14,6 +13,7 @@ function CSystem:init(filters)
 
 	self.entities = {}
 	self.filters = filters or {}
+	self.rejects = rejects or {}
 
 	self.active = true
 end

@@ -148,7 +148,7 @@ function CWorld:addSystem(system, callback)
 	end
 
 	if system["load"] and type(system["load"]) == "function" then
-		system:load()
+		system:load(system)
 		if self.eventManagerOptions.event_system_loaded_enable then
 			self.eventManager:queueEvent(
 				BuiltinEvents.EVENT_SYSTEM_LOADED.new(system))

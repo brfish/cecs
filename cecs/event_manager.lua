@@ -98,7 +98,6 @@ function CEventManager:abortFirstEvent(event)
 			return
 		end
 	end
-
 end
 
 function CEventManager:abortLastEvent(event)
@@ -142,6 +141,10 @@ function CEventManager:triggerEvent(event)
 	end
 
 	local eventType = event:getType()
+	if not self.listeners[eventType] then
+		error("Fail to trigger the event: the listener is not existed")
+		return
+	end
 	for i = 1, #self.listeners[eventType] do
 		local listener = self.listeners[eventType][i]
 		listener:receive(event)
@@ -157,6 +160,10 @@ function CEventManager:triggerAll()
 
 	for i = 1, #current do
 		local eventType = current[i]:getType()
+		if not self.listeners[eventType] then
+			error("Fail to trigger the event: the listener is not existed")
+			return
+		end
 		for j = 1, #self.listeners[eventType] do
 			local listener = self.listeners[eventType][j]
 			listener:receive(current[i])
@@ -176,6 +183,9 @@ function CEventManager:update(timelimit)
 	local point = 1
 	while point <= #current do
 		local eventType = current[point]:getType()
+			if not self.listeners[eventType] then
+				error("Fail to trigger the event: the listener is not existed")
+			end
 			for i = 1, #self.listeners[eventType] do
 				local listener = self.listeners[eventType][i]
 				listener:receive(current[point])
