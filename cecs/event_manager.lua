@@ -203,6 +203,8 @@ function CEventManager:update(timelimit)
 			self.queue[self.activeQueue][#self.queue[self.activeQueue] + 1] = current[i]
 		end
 	end
+
+	current = nil
 end
 
 function CEventManager:clear()

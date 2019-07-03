@@ -64,8 +64,6 @@ function CWorld:addEntity(entity)
 
 	self.entityManager:addEntity(entity)
 
-	entity:setManager(self.entityManager)
-
 	for _, callback in pairs(self.systems) do
 		for __, system in pairs(callback.objects) do
 			if system:eligible(entity) then
@@ -86,19 +84,17 @@ function CWorld:removeEntity(entity)
 		Types.error(entity, "entity") 
 	end
 
-	self.entityManager:removeEntity(entity)
-
 	for _, callback in pairs(self.systems) do
-		for __, system in pairs(callback) do
-			if system.active then
-				system:removeEntity(entity)
-				if self.eventManagerOptions.event_entity_removed_enable then
-					self.eventManager:queueEvent(
-						BuiltinEvents.EVENT_ENTITY_REMOVED.new(system, entity))
-				end
+		for __, system in pairs(callback.objects) do
+			system:removeEntity(entity)
+			if self.eventManagerOptions.event_entity_removed_enable then
+				self.eventManager:queueEvent(
+					BuiltinEvents.EVENT_ENTITY_REMOVED.new(system, entity))
 			end
 		end
 	end
+	
+	self.entityManager:removeEntity(entity)
 end
 
 function CWorld:addSystem(system, callback)

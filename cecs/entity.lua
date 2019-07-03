@@ -23,7 +23,7 @@ function CEntity:isActive()
 end
 
 function CEntity:setManager(manager)
-	if not Types.isEntityManager(manager) then
+	if manager and not Types.isEntityManager(manager) then
 		Types.error(manager, "entitymanager")
 	end
 

@@ -49,19 +49,17 @@ function CEntityManager:addEntity(entity)
 		error("Fail to add entity to entity manager: the entity has existed")
 		return
 	end
-	self.point = self.point + 1
 	self.size = self.size + 1
-	local id = self.point
-	entity.id = id
-	self.entities[id] = entity
+	entity:setManager(self)
+	self.entities[entity.id] = entity
 end
 
 function CEntityManager:removeEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
-	
-	if entitiy.id == -1 or self.entities[entity.id] == nil then
+
+	if entity.id == -1 or self.entities[entity.id] == nil then
 		error("Fail to remove entity from entity manager: the entity is not existed")
 		return
 	end
