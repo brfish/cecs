@@ -27,4 +27,20 @@ local cecs = {
 	Types = Types
 }
 
+function cecs.newEntity()
+	return Entity.new()
+end
+
+function cecs.newWorld()
+	return World.new()
+end
+
+function cecs.newComponent(name, func)
+	return Component.new(name, func)
+end
+
+function cecs.newComponentPool()
+	return ComponentPool.new()
+end
+
 return cecs
