@@ -5,14 +5,15 @@ local Types = require(BASEDIR .. "type_info")
 
 local JuSystem = class("juice_system")
 
-function JuSystem:init(filters, rejects)
+function JuSystem:init(requirements, rejects)
 	self.__isSystem = true
 	
 	self.world = nil
 	self.eventManager = nil
 
 	self.entities = {}
-	self.filters = filters or {}
+
+	self.requirements = requirements or {}
 	self.rejects = rejects or {}
 
 	self.active = true
@@ -36,24 +37,78 @@ function JuSystem:setEventManager(manager)
 	self.eventManager = manager or nil
 end
 
-function JuSystem:setFilters(filters)
-	self.filters = filters
+function JuSystem:refresh()
+	local toRemove = {}
+	for id, entity in pairs(self.entities) do
+		if not self:eligible(entity) then
+			toRemove[#toRemove + 1] = id
+		end
+	end
+	for i = 1, #toRemove do
+		self.entities[toRemove[i]] = nil
+	end
 end
 
-function JuSystem:addFilter(filter)
-	for i = 1, #self.filters do
-		if self.filters[i] == filter then
-			error("Fail to add filter to system: the filter has existed")
+function JuSystem:setRequirements(requirements)
+	self.requirements = requirements
+	self:refresh()
+end
+
+function JuSystem:addRequirement(requirement)
+	if type(self.requirements) == "function" then
+		error("Fail to add requirement filter: the requirement has been set a function")
+	end
+	for i = 1, #self.requirements do
+		if self.requirements[i] == filter then
+			error("Fail to add requirement filter to system: the filter has existed")
 			return
 		end
 	end
-	self.filters[#self.filters + 1] = filter
+	self.requirements[#self.requirements + 1] = requirement
+	self:refresh()
 end
 
-function JuSystem:removeFilter(filter)
-	for i = #self.filters, 1, -1 do
-		if self.filters[i] == filter then
-			table.remove(self.filters, i)
+function JuSystem:removeRequirement(requirement)
+	if type(self.requirements) == "function" then
+		error("Fail to remove requirement filter: the requirement has been set a function")
+	end
+	for i = #self.requirements, 1, -1 do
+		if self.requirements[i] == requirement then
+			table.remove(self.requirements, i)
+			self:refresh()
+			return true
+		end
+	end
+	return false
+end
+
+function JuSystem:setRejects(rejects)
+	self.rejects = rejects
+	self:refresh()
+end
+
+function JuSystem:addReject(reject)
+	if type(self.requirements) == "function" then
+		error("Fail to add reject filter: the reject has been set a function")
+	end
+	for i = 1, #self.rejects do
+		if self.rejects[i] == reject then
+			error("Fail to add reject filter to system: the filter has existed")
+			return
+		end
+	end
+	self.rejects[#self.rejects + 1] = reject
+	self:refresh()
+end
+
+function JuSystem:removeReject(reject)
+	if type(self.requirements) == "function" then
+		error("Fail to remove reject filter: the reject has been set a function")
+	end
+	for i = #self.rejects, 1, -1 do
+		if self.rejects[i] == reject then
+			table.remove(self.rejects, i)
+			self:refresh()
 			return true
 		end
 	end
@@ -78,10 +133,24 @@ function JuSystem:eligible(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
-	for i = 1, #self.filters do
-		local filter = self.filters[i]
-		if not entity:contains(filter) then
-			return false
+	if type(self.rejects) == "function" then
+		do return not self.rejects(entity) end
+	else
+		for i = 1, #self.rejects do
+			local reject = self.rejects[i]
+			if entity:contains(reject) then
+				return false
+			end
+		end
+	end
+	if type(self.requirements) == "function" then
+		do return self.requirements(entity) end
+	else
+		for i = 1, #self.requirements do
+			local requirement = self.requirements[i]
+			if not entity:contains(requirement) then
+				return false
+			end
 		end
 	end
 	return true
@@ -93,7 +162,7 @@ end
 
 function JuSystem:foreach(update)
 	if not update or type(update) ~= "function" then
-		return
+		Types.error(update, "function")
 	end
 	for _, entity in pairs(self.entities) do
 		if entity.active then
