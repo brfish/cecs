@@ -1,10 +1,9 @@
 local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 
-local CEvent = class("cecs_event")
+local JuEvent = class("juice_event")
 
-function CEvent:init()
-
+function JuEvent:init()
 	self.__isEvent = true
 	
 	local name = self.__cname
@@ -15,8 +14,8 @@ function CEvent:init()
 	self.eventType = name
 end
 
-function CEvent:getType()
+function JuEvent:getType()
 	return self.eventType
 end
 
-return CEvent
+return JuEvent

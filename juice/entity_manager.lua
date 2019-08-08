@@ -3,9 +3,9 @@ local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 local Types = require(BASEDIR .. "type_info")
 
-local CEntityManager = class("cecs_entitymanager")
+local JuEntityManager = class("juice_entitymanager")
 
-function CEntityManager:init()
+function JuEntityManager:init()
 	self.__isEntityManager = true
 
 	self.world = nil
@@ -17,19 +17,19 @@ function CEntityManager:init()
 	self.size = 0
 end
 
-function CEntityManager:setWorld(world)
+function JuEntityManager:setWorld(world)
 	if not Types.isWorld(world) then
 		Types.error(world, "world")
 	end
 	self.world = world or nil
 end
 
-function CEntityManager:assignNewId()
+function JuEntityManager:assignNewId()
 	self.point = self.point + 1
 	return self.point
 end
 
-function CEntityManager:contains(entity)
+function JuEntityManager:contains(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
@@ -40,7 +40,7 @@ function CEntityManager:contains(entity)
 	return self.entities[entity.id] ~= nil
 end
 
-function CEntityManager:addEntity(entity)
+function JuEntityManager:addEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
@@ -54,7 +54,7 @@ function CEntityManager:addEntity(entity)
 	self.entities[entity.id] = entity
 end
 
-function CEntityManager:removeEntity(entity)
+function JuEntityManager:removeEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
@@ -69,7 +69,7 @@ function CEntityManager:removeEntity(entity)
 
 end
 
-function CEntityManager:clear()
+function JuEntityManager:clear()
 	for _, entity in pairs(self.entities) do
 		entity:setManager()
 	end
@@ -78,15 +78,15 @@ function CEntityManager:clear()
 	self.size = 0
 end
 
-function CEntityManager:getByEntityId(id)
+function JuEntityManager:getByEntityId(id)
 	if self.entities[id] then
 		return self.entities[id]
 	end
 	return nil
 end
 
-function CEntityManager:getAllEntities()
+function JuEntityManager:getAllEntities()
 	return self.entities
 end
 
-return CEntityManager
+return JuEntityManager

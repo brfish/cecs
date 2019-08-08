@@ -3,9 +3,9 @@ local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 local Types = require(BASEDIR .. "type_info")
 
-local CSystem = class("cecs_system")
+local JuSystem = class("juice_system")
 
-function CSystem:init(filters, rejects)
+function JuSystem:init(filters, rejects)
 	self.__isSystem = true
 	
 	self.world = nil
@@ -18,7 +18,7 @@ function CSystem:init(filters, rejects)
 	self.active = true
 end
 
-function CSystem:setWorld(world)
+function JuSystem:setWorld(world)
 	if not Types.isWorld(world) then
 		Types.error(world, "world")
 	end
@@ -29,18 +29,18 @@ function CSystem:setWorld(world)
 	self.world = nil
 end
 
-function CSystem:setEventManager(manager)
+function JuSystem:setEventManager(manager)
 	if not Types.isEventManager(manager) then
 		Types.error(manager, "eventmanager")
 	end
 	self.eventManager = manager or nil
 end
 
-function CSystem:setFilters(filters)
+function JuSystem:setFilters(filters)
 	self.filters = filters
 end
 
-function CSystem:addFilter(filter)
+function JuSystem:addFilter(filter)
 	for i = 1, #self.filters do
 		if self.filters[i] == filter then
 			error("Fail to add filter to system: the filter has existed")
@@ -50,7 +50,7 @@ function CSystem:addFilter(filter)
 	self.filters[#self.filters + 1] = filter
 end
 
-function CSystem:removeFilter(filter)
+function JuSystem:removeFilter(filter)
 	for i = #self.filters, 1, -1 do
 		if self.filters[i] == filter then
 			table.remove(self.filters, i)
@@ -60,21 +60,21 @@ function CSystem:removeFilter(filter)
 	return false
 end
 
-function CSystem:addEntity(entity)
+function JuSystem:addEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
 	self.entities[entity.id] = entity
 end
 
-function CSystem:removeEntity(entity)
+function JuSystem:removeEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
 	self.entities[entity.id] = nil
 end
 
-function CSystem:eligible(entity)
+function JuSystem:eligible(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
@@ -87,11 +87,11 @@ function CSystem:eligible(entity)
 	return true
 end
 
-function CSystem:getEntities()
+function JuSystem:getEntities()
 	return self.entities
 end
 
-function CSystem:foreach(update)
+function JuSystem:foreach(update)
 	if not update or type(update) ~= "function" then
 		return
 	end
@@ -102,20 +102,20 @@ function CSystem:foreach(update)
 	end
 end
 
-function CSystem:clearEntities()
+function JuSystem:clearEntities()
 	self.entities = {}
 end
 
-function CSystem:activate()
+function JuSystem:activate()
 	self.active = true
 end
 
-function CSystem:deactivate()
+function JuSystem:deactivate()
 	self.active = false
 end
 
-function CSystem:isActive()
+function JuSystem:isActive()
 	return self.active
 end
 
-return CSystem
+return JuSystem

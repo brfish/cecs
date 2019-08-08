@@ -4,9 +4,9 @@ local class = require(BASEDIR .. "class")
 local BuiltinEvents = require(BASEDIR .. "builtin_events")
 local Types = require(BASEDIR .. "type_info")
 
-local CEntity = class("cecs_entity")
+local JuEntity = class("juice_entity")
 
-function CEntity:init()
+function JuEntity:init()
 	self.__isEntity = true
 
 	self.entityManager = nil
@@ -18,11 +18,11 @@ function CEntity:init()
 	self.active = true
 end
 
-function CEntity:isActive()
+function JuEntity:isActive()
 	return self.active
 end
 
-function CEntity:setManager(manager)
+function JuEntity:setManager(manager)
 	if manager and not Types.isEntityManager(manager) then
 		Types.error(manager, "entitymanager")
 	end
@@ -36,7 +36,7 @@ function CEntity:setManager(manager)
 	end
 end
 
-function CEntity:addComponent(component, ...)
+function JuEntity:addComponent(component, ...)
 	if not Types.isComponent(component) then
 		Types.error(component, "component")
 	end
@@ -60,7 +60,7 @@ function CEntity:addComponent(component, ...)
 	return self
 end
 
-function CEntity:removeComponent(component)
+function JuEntity:removeComponent(component)
 	if self.components[component] then
 		self.components[component] = nil
 	else
@@ -77,15 +77,15 @@ function CEntity:removeComponent(component)
 	return self
 end
 
-function CEntity:add(component, ...)
+function JuEntity:add(component, ...)
 	return self:addComponent(component, ...)
 end
 
-function CEntity:remove(component)
+function JuEntity:remove(component)
 	return self:removeComponent(component)
 end
 
-function CEntity:get(component)
+function JuEntity:get(component)
 	if self.components[component] == nil then
 		return nil
 	end
@@ -97,11 +97,11 @@ function CEntity:get(component)
 	return self.components[component]
 end
 
-function CEntity:getAll()
+function JuEntity:getAll()
 	return self.components
 end
 
-function CEntity:getComponentsList()
+function JuEntity:getComponentsList()
 	local list = {}
 	for ctype, _ in pairs(self.components) do
 		list[#list + 1] = ctype
@@ -109,20 +109,20 @@ function CEntity:getComponentsList()
 	return list
 end
 
-function CEntity:contains(component)
+function JuEntity:contains(component)
 	return self.components[component] ~= nil
 end
 
-function CEntity:activate()
+function JuEntity:activate()
 	self.active = true
 end
 
-function CEntity:deactivate()
+function JuEntity:deactivate()
 	self.active = false
 end
 
-function CEntity:isActive()
+function JuEntity:isActive()
 	return self.active
 end
 
-return CEntity
+return JuEntity

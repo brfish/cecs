@@ -10,9 +10,9 @@ local BuiltinEvents = require(BASEDIR .. "builtin_events")
 
 local Types = require(BASEDIR .. "type_info")
 
-local CWorld = class("cecs_world")
+local JuWorld = class("juice_world")
 
-function CWorld:init()
+function JuWorld:init()
 	self.__isWorld = true
 
 	self.componentsPool = ComponentsPool.new()
@@ -25,6 +25,9 @@ function CWorld:init()
 	
 	self.systems = {}
 	self.registeredSystems = {}
+
+	self.__EVENT_SYSTEMS = {}
+	self.__PROCESS_SYSTEMS = {}
 
 	self.eventManagerOptions = {
 		event_entity_added_enable = false,
@@ -39,21 +42,21 @@ function CWorld:init()
 	}
 end
 
-function CWorld:setEntityManager(entityManager)
+function JuWorld:setEntityManager(entityManager)
 	if not Types.isEntityManager(entityManager) then
 		Types.error(entityManager, "entitymanager")
 	end
 	self.entityManager = entityManager
 end
 
-function CWorld:setEventManager(eventManager)
+function JuWorld:setEventManager(eventManager)
 	if not Types.isEventManager(eventManager) then
 		Types.error(eventManager, "eventmanager")
 	end
 	self.eventManager = eventManager
 end
 
-function CWorld:addEntity(entity)
+function JuWorld:addEntity(entity)
 
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
@@ -76,7 +79,7 @@ function CWorld:addEntity(entity)
 	return entity
 end
 
-function CWorld:removeEntity(entity)
+function JuWorld:removeEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity") 
 	end
@@ -94,7 +97,7 @@ function CWorld:removeEntity(entity)
 	self.entityManager:removeEntity(entity)
 end
 
-function CWorld:addSystem(system, callback)
+function JuWorld:addSystem(system, callback)
 	if not Types.isSystem(system) then
 		Types.error(system, "system")
 	end
@@ -151,7 +154,7 @@ function CWorld:addSystem(system, callback)
 	return system
 end
 
-function CWorld:removeSystem(system, callback)
+function JuWorld:removeSystem(system, callback)
 	if not Types.isSystem(system) then
 		Types.error(system, "system")
 	end
@@ -174,7 +177,7 @@ function CWorld:removeSystem(system, callback)
 	end
 end
 
-function CWorld:stopSystem(system, callback)
+function JuWorld:stopSystem(system, callback)
 	if not Types.isSystem(system) then
 		Types.error(system, "system")
 	end
@@ -195,7 +198,7 @@ function CWorld:stopSystem(system, callback)
 	system:deactivate()
 end
 
-function CWorld:startSystem(system, callback)
+function JuWorld:startSystem(system, callback)
 	if not Types.isSystem(system) then
 		Types.error(system, "system")
 	end
@@ -216,7 +219,7 @@ function CWorld:startSystem(system, callback)
 	system:activate()
 end
 
-function CWorld:containsSystem(system, callback)
+function JuWorld:containsSystem(system, callback)
 	if not Types.isSystem(system) then
 		Types.error(system, "system")
 	end
@@ -227,7 +230,7 @@ function CWorld:containsSystem(system, callback)
 	return self.registeredSystems[system] ~= nil
 end
 
-function CWorld:containsEntity(entity)
+function JuWorld:containsEntity(entity)
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end
@@ -235,11 +238,11 @@ function CWorld:containsEntity(entity)
 	return self.entityManager:contains(entity)
 end
 
-function CWorld:getAllEntities()
+function JuWorld:getAllEntities()
 	return self.entityManager:getAllEntities()
 end
 
-function CWorld:run(callback, ...)
+function JuWorld:run(callback, ...)
 	if callback == "NULL" then
 		return
 	end
@@ -255,4 +258,4 @@ function CWorld:run(callback, ...)
 	end
 end
 
-return CWorld
+return JuWorld

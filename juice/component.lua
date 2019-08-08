@@ -3,34 +3,34 @@ local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 local Types = require(BASEDIR .. "type_info")
 
-local CComponent = class("cecs_component")
+local JuComponent = class("juice_component")
 
-function CComponent:init(name, construction)
+function JuComponent:init(name, construction)
 	self.__isComponent = true
 
 	self.construction = construction
 	self.name = name
 end
 
-function CComponent:getConstruction()
+function JuComponent:getConstruction()
 	return self.construction
 end
 
-function CComponent:setConstruction(construction)
+function JuComponent:setConstruction(construction)
 	self.construction = construction
 end
 
-function CComponent:generate(...)
+function JuComponent:generate(...)
 	return self.construction(...)
 end
 
-local CComponentPool = class("cecs_componentpool")
+local JuComponentPool = class("juice_componentpool")
 
-function CComponentPool:init()
+function JuComponentPool:init()
 	self.components = {}
 end
 
-function CComponentPool:add(component)
+function JuComponentPool:add(component)
 	if not Types.isComponent(component) then
 		Types.error(component, "component")
 	end
@@ -46,7 +46,7 @@ function CComponentPool:add(component)
 	end
 end
 
-function CComponentPool:set(component)
+function JuComponentPool:set(component)
 	if not Types.isComponent(component) then
 		Types.error(component, "component")
 	end
@@ -58,13 +58,13 @@ function CComponentPool:set(component)
 	end
 end
 
-function CComponentPool:create(name, construction)
-	local component = CComponent.new(name, construction)
+function JuComponentPool:create(name, construction)
+	local component = JuComponent.new(name, construction)
 	self.components[name] = component
 	return component
 end
 
-function CComponentPool:get(name1, ...)
+function JuComponentPool:get(name1, ...)
 	local components = {}
 	if self.components[name1] then
 		components[#components + 1] = self.components[name1]
@@ -79,6 +79,6 @@ function CComponentPool:get(name1, ...)
 end
 
 return {
-	Pool = CComponentPool,
-	Component = CComponent
+	Component = JuComponent,
+	Pool = JuComponentPool
 }

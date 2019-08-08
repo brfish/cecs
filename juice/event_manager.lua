@@ -3,9 +3,9 @@ local BASEDIR = (...):match("(.-)[^%.]+$")
 local class = require(BASEDIR .. "class")
 local Types = require(BASEDIR .. "type_info")
 
-local CEventManager = class("cecs_eventmanager")
+local JuEventManager = class("juice_eventmanager")
 
-function CEventManager:init()
+function JuEventManager:init()
 	self.__isEventManager = true
 
 	self.world = nil
@@ -17,14 +17,14 @@ function CEventManager:init()
 
 end
 
-function CEventManager:setWorld(world)
+function JuEventManager:setWorld(world)
 	if not Types.isWorld(world) then
 		Types.error(world, "world")
 	end
 	self.world = world or nil
 end
 
-function CEventManager:addListener(eventType, listener)
+function JuEventManager:addListener(eventType, listener)
 	if not Types.isSystem(listener) then
 		Types.error(system, "system")
 	end
@@ -48,7 +48,7 @@ function CEventManager:addListener(eventType, listener)
 	self.listeners[eventType][#self.listeners[eventType] + 1] = listener
 end
 
-function CEventManager:removeListener(eventType, listener)
+function JuEventManager:removeListener(eventType, listener)
 	if not Types.isSystem(listener) then
 		Types.error(listener, "system")
 	end
@@ -72,7 +72,7 @@ function CEventManager:removeListener(eventType, listener)
 
 end
 
-function CEventManager:queueEvent(event)
+function JuEventManager:queueEvent(event)
 	if not Types.isEvent(event) then
 		Types.error(event, "event")
 	end
@@ -83,7 +83,7 @@ function CEventManager:queueEvent(event)
 	active[#active + 1] = event
 end
 
-function CEventManager:abortFirstEvent(event)
+function JuEventManager:abortFirstEvent(event)
 	if not Types.isEvent(event) then
 		Types.error(event, "event")
 	end
@@ -100,7 +100,7 @@ function CEventManager:abortFirstEvent(event)
 	end
 end
 
-function CEventManager:abortLastEvent(event)
+function JuEventManager:abortLastEvent(event)
 	if not Types.isEvent(event) then
 		Types.error(event, "event")
 	end
@@ -118,7 +118,7 @@ function CEventManager:abortLastEvent(event)
 
 end
 
-function CEventManager:abortAllEvent(event)
+function JuEventManager:abortAllEvent(event)
 	if not Types.isEvent(event) then
 		Types.error(event, "event")
 	end
@@ -135,7 +135,7 @@ function CEventManager:abortAllEvent(event)
 
 end
 
-function CEventManager:triggerEvent(event)
+function JuEventManager:triggerEvent(event)
 	if not Types.isEvent(event) then
 		Types.error(event, "event")
 	end
@@ -152,7 +152,7 @@ function CEventManager:triggerEvent(event)
 	
 end
 
-function CEventManager:triggerAll()
+function JuEventManager:triggerAll()
 	local current = self.queue[self.activeQueue]
 
 	self.activeQueue = (self.activeQueue + 1) % 2
@@ -171,7 +171,7 @@ function CEventManager:triggerAll()
 	end
 end
 
-function CEventManager:update(timelimit)
+function JuEventManager:update(timelimit)
 	local startTime = love.timer.getTime()
 	timelimit = timelimit or 1 / 120
 
@@ -207,7 +207,7 @@ function CEventManager:update(timelimit)
 	current = nil
 end
 
-function CEventManager:clear()
+function JuEventManager:clear()
 	self.queue[0] = {}
 	self.queue[1] = {}
 
@@ -218,4 +218,4 @@ function CEventManager:clear()
 	end
 end
 
-return CEventManager
+return JuEventManager
