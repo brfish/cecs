@@ -26,9 +26,6 @@ function JuWorld:init()
 	self.systems = {}
 	self.registeredSystems = {}
 
-	self.__EVENT_SYSTEMS = {}
-	self.__PROCESS_SYSTEMS = {}
-
 	self.eventManagerOptions = {
 		event_entity_added_enable = false,
 		event_entity_removed_enable = false,
@@ -57,7 +54,6 @@ function JuWorld:setEventManager(eventManager)
 end
 
 function JuWorld:addEntity(entity)
-
 	if not Types.isEntity(entity) then
 		Types.error(entity, "entity")
 	end

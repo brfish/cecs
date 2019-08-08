@@ -6,6 +6,12 @@ local Types = require(BASEDIR .. "type_info")
 local JuComponent = class("juice_component")
 
 function JuComponent:init(name, construction)
+	if Types.typeinfo(name) ~= "string" then
+		Types.error(name, "string")
+	end
+	if Types.typeinfo(construction) ~= "function" then
+		Types.error(construction, "function")
+	end
 	self.__isComponent = true
 
 	self.construction = construction

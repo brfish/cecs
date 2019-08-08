@@ -77,14 +77,6 @@ function JuEntity:removeComponent(component)
 	return self
 end
 
-function JuEntity:add(component, ...)
-	return self:addComponent(component, ...)
-end
-
-function JuEntity:remove(component)
-	return self:removeComponent(component)
-end
-
 function JuEntity:get(component)
 	if self.components[component] == nil then
 		return nil
